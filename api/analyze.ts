@@ -7,7 +7,7 @@ import { fetchAllFeeds }    from '../lib/rssFetcher';
 import { analyzeWithAI }    from '../lib/aiAnalyzer';
 import type { AnalysisResponse, ErrorResponse } from '../types';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// Helpers 
 
 function setCORSHeaders(res: VercelResponse): void {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -25,7 +25,7 @@ function sendError(res: VercelResponse, status: number, message: string): void {
   sendJSON<ErrorResponse>(res, status, { error: message });
 }
 
-// ── Handler ──────────────────────────────────────────────────────────────────
+// Handler 
 
 export default async function handler(
   req: VercelRequest,
@@ -43,7 +43,7 @@ export default async function handler(
     return;
   }
 
-  // ── 1. VALIDATE PAYLOAD ───────────────────────────────────────────────────
+  // 1. VALIDATE PAYLOAD 
   let payload: ReturnType<typeof validatePayload>;
   try {
     payload = validatePayload(req.body);
@@ -55,7 +55,7 @@ export default async function handler(
 
   const { rssUrls, categories, topN } = payload;
 
-  // ── 2. FETCH RSS FEEDS IN PARALLEL ────────────────────────────────────────
+  // 2. FETCH RSS FEEDS IN PARALLEL 
   let articles: Awaited<ReturnType<typeof fetchAllFeeds>>['articles'];
   let failedSources: string[];
 
@@ -83,7 +83,7 @@ export default async function handler(
     return;
   }
 
-  // ── 3. SEMANTIC AI ANALYSIS ───────────────────────────────────────────────
+  // 3. SEMANTIC AI ANALYSIS 
   let categoryResults: Awaited<ReturnType<typeof analyzeWithAI>>;
   try {
     categoryResults = await analyzeWithAI(articles, categories, topN);
@@ -93,7 +93,7 @@ export default async function handler(
     return;
   }
 
-  // ── 4. BUILD AND SEND RESPONSE ────────────────────────────────────────────
+  // 4. BUILD AND SEND RESPONSE 
   const response: AnalysisResponse = {
     results: categoryResults,
     meta: {
