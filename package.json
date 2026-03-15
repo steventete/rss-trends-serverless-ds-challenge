@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Serverless RSS trend analyzer with AI semantic analysis",
   "scripts": {
-    "dev": "npx vercel@latest dev",
-    "deploy": "npx vercel@latest --prod",
+    "dev": "npx vercel dev",
+    "deploy": "npx vercel --prod",
     "build": "tsc --noEmit",
     "test": "npx ts-node tests/test.ts",
     "lint": "eslint . --ext .ts",
@@ -12,12 +12,13 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
+    "@vercel/node": "^5.6.15",
+    "dotenv": "^17.3.1",
     "rss-parser": "^3.13.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "@types/rss-parser": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "eslint": "^8.57.0",

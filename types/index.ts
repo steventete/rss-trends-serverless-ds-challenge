@@ -1,7 +1,4 @@
-// types/index.ts
-// Domain types for the RSS Trends Analyzer
-
-// ── Request ──────────────────────────────────────────────────────────────────
+// Request 
 
 export interface RequestPayload {
   /** List of RSS feed URLs to fetch */
@@ -12,7 +9,7 @@ export interface RequestPayload {
   topN: number;
 }
 
-// ── RSS / Ingestion ──────────────────────────────────────────────────────────
+// RSS / Ingestion 
 
 export interface NewsItem {
   title: string;
@@ -43,7 +40,7 @@ export interface FetchAllFeedsResult {
   failedSources: string[];
 }
 
-// ── AI Analysis ──────────────────────────────────────────────────────────────
+// AI Analysis
 
 export interface Trend {
   /** Short description of the detected topic (≤10 words) */
@@ -78,7 +75,7 @@ export interface RawAIResponse {
   categories: RawCategoryResult[];
 }
 
-// ── API Response ─────────────────────────────────────────────────────────────
+// API Response
 
 export interface ResponseMeta {
   totalArticlesProcessed: number;

@@ -1,23 +1,17 @@
-// tests/test.ts
-// Local integration test — run with: npm test
-
+import 'dotenv/config'
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { AnalysisResponse, ErrorResponse } from '../types';
 import handler from '../api/analyze';
 
-// ── Test payload ─────────────────────────────────────────────────────────────
-
 const TEST_PAYLOAD = {
   rssUrls: [
-    'https://feeds.bbci.co.uk/news/world/rss.xml',           // BBC World
-    'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', // NYT World
-    'https://esta-url-no-existe.xyz/feed.xml',               // Invalid — tests error handling
+    'https://feeds.bbci.co.uk/news/world/rss.xml',
+    'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
+    'https://esta-url-no-existe.xyz/feed.xml',
   ],
   categories: ['Politics', 'Technology', 'Economy', 'Conflicts', 'Climate'],
   topN: 3,
 };
-
-// ── Minimal mock of VercelRequest / VercelResponse ───────────────────────────
 
 function createMockReq(body: unknown): VercelRequest {
   return { method: 'POST', body } as VercelRequest;
@@ -42,10 +36,8 @@ function createMockRes(): VercelResponse & {
   };
 }
 
-// ── Runner ───────────────────────────────────────────────────────────────────
-
 async function runTest(): Promise<void> {
-  console.info('🚀 Starting integration test for POST /api/analyze\n');
+  console.info('Starting integration test for POST /api/analyze\n');
   console.info('Payload:', JSON.stringify(TEST_PAYLOAD, null, 2), '\n');
 
   const req = createMockReq(TEST_PAYLOAD);
@@ -55,18 +47,18 @@ async function runTest(): Promise<void> {
   await handler(req, res as unknown as VercelResponse);
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
 
-  console.info(`⏱  Total time : ${elapsed}s`);
-  console.info(`📡 HTTP status : ${res._status}\n`);
+  console.info(`Total time : ${elapsed}s`);
+  console.info(`HTTP status : ${res._status}\n`);
 
   if (res._status !== 200 || !res._body) {
-    console.error('❌ Request failed:', res._body);
+    console.error('Request failed:', res._body);
     process.exit(1);
   }
 
   const body = res._body as AnalysisResponse;
   const { results, meta } = body;
 
-  console.info('📊 META');
+  console.info('META');
   console.info(`  Articles processed : ${meta.totalArticlesProcessed}`);
   console.info(`  Sources queried    : ${meta.totalSourcesQueried}`);
   console.info(`  Failed sources     : ${meta.failedSources.length}`);
@@ -74,7 +66,7 @@ async function runTest(): Promise<void> {
   if (meta.note) console.info(`  Note               : ${meta.note}`);
   console.info(`  Analyzed at        : ${meta.analyzedAt}\n`);
 
-  console.info('📰 TRENDS BY CATEGORY');
+  console.info('TRENDS BY CATEGORY');
   results.forEach((cat) => {
     if (cat.trends.length === 0) return;
     console.info(`\n  📂 ${cat.category.toUpperCase()}`);
@@ -85,7 +77,7 @@ async function runTest(): Promise<void> {
     });
   });
 
-  console.info('\n✅ Test completed successfully');
+  console.info('\nTest completed successfully');
 }
 
 runTest().catch((err: unknown) => {
