@@ -1,4 +1,3 @@
-// lib/aiAnalyzer.ts
 // Classifies and semantically groups news articles using Claude
 
 import Anthropic from '@anthropic-ai/sdk';

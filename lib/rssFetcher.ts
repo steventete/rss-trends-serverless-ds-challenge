@@ -1,4 +1,3 @@
-// lib/rssFetcher.ts
 // Fetches and parses RSS feeds in parallel, filtering to the last 24 hours
 
 import Parser from 'rss-parser';

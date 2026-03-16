@@ -1,4 +1,3 @@
-// lib/validator.ts
 // Validates and sanitises the incoming request payload using Zod
 
 import { z } from 'zod';
