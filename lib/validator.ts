@@ -1,5 +1,3 @@
-// Validates and sanitises the incoming request payload using Zod
-
 import { z } from 'zod';
 import type { RequestPayload } from '../types';
 
@@ -22,10 +20,6 @@ const payloadSchema = z.object({
     .default(3),
 });
 
-/**
- * Validates the raw request body against the payload schema.
- * Throws a descriptive Error if validation fails.
- */
 export function validatePayload(body: unknown): RequestPayload {
   const result = payloadSchema.safeParse(body);
 

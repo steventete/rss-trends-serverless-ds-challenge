@@ -1,5 +1,3 @@
-// Fetches and parses RSS feeds in parallel, filtering to the last 24 hours
-
 import Parser from 'rss-parser';
 import type {
   NewsItem,
@@ -15,9 +13,6 @@ const parser = new Parser({
   headers: { 'User-Agent': 'RSS-Trends-Analyzer/1.0' },
 });
 
-/**
- * Resolves a human-readable source name from the parsed feed or the URL.
- */
 function resolveSourceName(feed: Parser.Output<Record<string, unknown>>, url: string): string {
   if (feed.title?.trim()) return feed.title.trim();
   try {
@@ -27,10 +22,6 @@ function resolveSourceName(feed: Parser.Output<Record<string, unknown>>, url: st
   }
 }
 
-/**
- * Extracts and normalises articles from a parsed feed,
- * discarding anything older than 24 hours.
- */
 function extractArticles(
   feed: Parser.Output<Record<string, unknown>>,
   sourceName: string,
@@ -54,15 +45,12 @@ function extractArticles(
     })
     .filter((article): boolean => {
       if (!article.title) return false;
-      // Include articles with no date rather than silently dropping them
+
       if (!article.date) return true;
       return new Date(article.date).getTime() >= cutoff;
     });
 }
 
-/**
- * Fetches a single RSS feed. Never throws — returns a discriminated union.
- */
 async function fetchSingleFeed(url: string): Promise<FeedOutcome> {
   try {
     const feed = await parser.parseURL(url);
@@ -75,10 +63,6 @@ async function fetchSingleFeed(url: string): Promise<FeedOutcome> {
   }
 }
 
-/**
- * Fetches all RSS feeds in parallel and aggregates the results.
- * Failed feeds are recorded but do not interrupt the overall process.
- */
 export async function fetchAllFeeds(urls: string[]): Promise<FetchAllFeedsResult> {
   const outcomes = await Promise.allSettled(urls.map(fetchSingleFeed));
 

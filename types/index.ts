@@ -1,11 +1,8 @@
 // Request 
 
 export interface RequestPayload {
-  /** List of RSS feed URLs to fetch */
   rssUrls: string[];
-  /** Categories to classify news into */
   categories: string[];
-  /** Number of top trends to return per category */
   topN: number;
 }
 
@@ -14,9 +11,7 @@ export interface RequestPayload {
 export interface NewsItem {
   title: string;
   description: string;
-  /** ISO 8601 date string, or null if unavailable */
   date: string | null;
-  /** Human-readable source name (feed title or hostname) */
   source: string;
   url: string;
 }
@@ -43,13 +38,9 @@ export interface FetchAllFeedsResult {
 // AI Analysis
 
 export interface Trend {
-  /** Short description of the detected topic (≤10 words) */
   topic: string;
-  /** Number of distinct sources covering this topic */
   sourceCount: number;
-  /** List of source names covering this topic */
   sources: string[];
-  /** Representative headlines from related articles */
   headlines: string[];
 }
 
@@ -58,7 +49,6 @@ export interface CategoryResult {
   trends: Trend[];
 }
 
-/** Raw structure returned by Claude before enrichment */
 export interface RawTrend {
   topic: string;
   articleIndices: number[];

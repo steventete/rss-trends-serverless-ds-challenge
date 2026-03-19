@@ -1,5 +1,3 @@
-// Classifies and semantically groups news articles using Claude
-
 import Anthropic from '@anthropic-ai/sdk';
 import type {
   NewsItem,
@@ -8,15 +6,10 @@ import type {
   Trend,
 } from '../types';
 
-// Claude's context window is generous, but we cap articles to keep
-// latency and token costs predictable for an academic environment.
 const MAX_ARTICLES = 100;
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-/**
- * Builds the structured prompt sent to Claude.
- */
 function buildPrompt(articles: NewsItem[], categories: string[], topN: number): string {
   const articlesText = articles
     .map(
@@ -60,9 +53,6 @@ Rules:
 - Do not assign the same article to two groups within the same category`;
 }
 
-/**
- * Strips optional markdown code fences Claude may wrap the JSON in.
- */
 function stripMarkdownFences(text: string): string {
   return text
     .replace(/^```(?:json)?\s*/i, '')
@@ -70,9 +60,6 @@ function stripMarkdownFences(text: string): string {
     .trim();
 }
 
-/**
- * Enriches raw AI trend data with headlines pulled from the original articles.
- */
 function enrichTrends(
   raw: RawAIResponse,
   articles: NewsItem[],
@@ -98,10 +85,6 @@ function enrichTrends(
   }));
 }
 
-/**
- * Sends articles to Claude for semantic classification and grouping.
- * Returns enriched trend results per category.
- */
 export async function analyzeWithAI(
   articles: NewsItem[],
   categories: string[],
