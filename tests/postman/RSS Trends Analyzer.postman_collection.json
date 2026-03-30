@@ -1,0 +1,356 @@
+{
+  "info": {
+    "_postman_id": "a1c85b55-1ef9-4e0a-98e6-2f8b835a231f",
+    "name": "RSS Trends Analyzer",
+    "description": "# RSS Trends Analyzer - API Test Suite\n\nThis Postman collection is designed to verify the reliability, performance, and fault tolerance of the **RSS Trends Analyzer** serverless function. The suite ensures the system correctly handles concurrent data ingestion, date-based filtering, and AI-driven semantic grouping.\n\n## Test Objectives\nThe collection validates the following core architectural requirements:\n\n* **Schema and Payload Validation:** Ensures the API correctly enforces input constraints, such as mandatory fields for `rssUrls` and `categories`, and range limits for the `topN` parameter.\n* **Fault Tolerance and Resilience:** Confirms the system remains operational when encountering network latency or invalid RSS sources. It verifies that timeouts (10s) and connection errors (ENOTFOUND) are isolated and reported in the metadata without failing the entire request.\n* **Semantic Grouping Logic:** Validates the ability of the Claude Sonnet model to identify and aggregate similar news stories from different providers into a single trend with a `sourceCount >= 2`.\n* **Dynamic Classification:** Tests the system's \"Zero-Shot\" capabilities by using custom categories to ensure the AI adapts to user-defined classification criteria rather than fixed labels.\n\n## Response Structure Verification\nTests are included to confirm that every successful response adheres to the required JSON format:\n* **Results:** Contains structured trends including `category`, `topic`, `sourceCount`, `sources`, and `headlines`.\n* **Meta:** Provides execution telemetry, including `totalArticlesProcessed`, `totalSourcesQueried`, and a detailed list of `failedSources` for transparency.\n\n## Technical Specifications\n* **Endpoint:** `https://rss-trends-serverless-ds-challenge.vercel.app/api/analyze`\n* **Method:** POST\n* **Runtime:** Node.js 20 on Vercel Functions\n* **LLM Provider:** Anthropic Claude Sonnet API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53401328",
+    "_collection_link": "https://go.postman.co/collection/53401328-a1c85b55-1ef9-4e0a-98e6-2f8b835a231f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Payload con fuentes existentes y categorías correctas",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"rssUrls\": [\r\n        \"https://feeds.bbci.co.uk/news/world/rss.xml\", \r\n        \"https://rss.nytimes.com/services/xml/rss/nyt/World.xml\"\r\n    ],\r\n    \"categories\": [\r\n        \"Politics\", \r\n        \"Technology\"], \r\n    \"topN\": 3\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://rss-trends-serverless-ds-challenge.vercel.app/api/analyze",
+          "protocol": "https",
+          "host": [
+            "rss-trends-serverless-ds-challenge",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "analyze"
+          ]
+        },
+        "description": "This test case verifies that the system works correctly when provided with valid data. The goal is to confirm that the service can access real news sources (such as the BBC and the New York Times), read the articles, and organize them according to the requested categories."
+      },
+      "response": []
+    },
+    {
+      "name": "Payload con fuentes existentes e inexistentes, categorías correctas",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"rssUrls\": [\r\n        \"https://url-falsa.xyz/feed.xml\",\r\n        \"https://www.eltiempo.com/rss/opinion.xml\",\r\n        \"http://rss.cnn.com/rss/cnn_world.rss\",\r\n        \"https://rss.nytimes.com/services/xml/rss/nyt/World.xml\"\r\n    ],\r\n    \"categories\": [\r\n        \"Politics\", \r\n        \"Technology\",\r\n        \"Opinion\"\r\n        ], \r\n    \"topN\": 3\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://rss-trends-serverless-ds-challenge.vercel.app/api/analyze",
+          "protocol": "https",
+          "host": [
+            "rss-trends-serverless-ds-challenge",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Payload sin fuentes en rssUrls",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"rssUrls\": [],\r\n    \"categories\": [\r\n        \"Politics\", \r\n        \"Technology\",\r\n        \"Opinion\"\r\n        ], \r\n    \"topN\": 3\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://rss-trends-serverless-ds-challenge.vercel.app/api/analyze",
+          "protocol": "https",
+          "host": [
+            "rss-trends-serverless-ds-challenge",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Payload sin categorías en categories",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"rssUrls\": [\r\n        \"https://www.eltiempo.com/rss/opinion.xml\",\r\n        \"http://rss.cnn.com/rss/cnn_world.rss\",\r\n        \"https://rss.nytimes.com/services/xml/rss/nyt/World.xml\"\r\n    ],\r\n    \"categories\": [], \r\n    \"topN\": 3\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://rss-trends-serverless-ds-challenge.vercel.app/api/analyze",
+          "protocol": "https",
+          "host": [
+            "rss-trends-serverless-ds-challenge",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Payload con topN fuera de rango",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"rssUrls\": [\r\n        \"https://feeds.bbci.co.uk/news/world/rss.xml\", \r\n        \"https://rss.nytimes.com/services/xml/rss/nyt/World.xml\"\r\n    ],\r\n    \"categories\": [\r\n        \"Politics\", \r\n        \"Technology\"], \r\n    \"topN\": 99\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://rss-trends-serverless-ds-challenge.vercel.app/api/analyze",
+          "protocol": "https",
+          "host": [
+            "rss-trends-serverless-ds-challenge",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Payload con método HTTP incorrecto (GET)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://rss-trends-serverless-ds-challenge.vercel.app/api/analyze",
+          "protocol": "https",
+          "host": [
+            "rss-trends-serverless-ds-challenge",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Payload con método HTTP incorrecto (PUT)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"rssUrls\": [\r\n        \"https://feeds.bbci.co.uk/news/world/rss.xml\", \r\n        \"https://rss.nytimes.com/services/xml/rss/nyt/World.xml\"\r\n    ],\r\n    \"categories\": [\r\n        \"Politics\", \r\n        \"Technology\"], \r\n    \"topN\": 2\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://rss-trends-serverless-ds-challenge.vercel.app/api/analyze",
+          "protocol": "https",
+          "host": [
+            "rss-trends-serverless-ds-challenge",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Payload con método HTTP incorrecto (PATCH)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"rssUrls\": [\r\n        \"https://feeds.bbci.co.uk/news/world/rss.xml\", \r\n        \"https://rss.nytimes.com/services/xml/rss/nyt/World.xml\"\r\n    ],\r\n    \"categories\": [\r\n        \"Politics\", \r\n        \"Technology\"], \r\n    \"topN\": 2\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://rss-trends-serverless-ds-challenge.vercel.app/api/analyze",
+          "protocol": "https",
+          "host": [
+            "rss-trends-serverless-ds-challenge",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Agrupación semántica entre fuentes",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"rssUrls\": [\r\n        \"https://feeds.bbci.co.uk/news/world/rss.xml\", \r\n        \"https://rss.nytimes.com/services/xml/rss/nyt/World.xml\"\r\n    ],\r\n    \"categories\": [\r\n        \"Middle East Conflict\", \r\n        \"International Humanitarian Crisis\"], \r\n    \"topN\": 4\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://rss-trends-serverless-ds-challenge.vercel.app/api/analyze",
+          "protocol": "https",
+          "host": [
+            "rss-trends-serverless-ds-challenge",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Tolerancia a fallos y latencia",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"rssUrls\": [\r\n        \"https://tools-httpstatus.pickup-services.com/200?sleep=15000\",\r\n        \"https://url-falsa.xyz/feed.xml\",\r\n        \"https://feeds.bbci.co.uk/news/world/rss.xml\"\r\n    ],\r\n    \"categories\": [\r\n        \"World\"\r\n    ],\r\n    \"topN\": 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://rss-trends-serverless-ds-challenge.vercel.app/api/analyze",
+          "protocol": "https",
+          "host": [
+            "rss-trends-serverless-ds-challenge",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
